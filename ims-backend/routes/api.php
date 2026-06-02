@@ -1,19 +1,33 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "api" middleware group. Make something great!
-|
-*/
+// Authentication routes - accessible to all, no middleware
+Route::prefix('auth')->group(function () {
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/change-password', [AuthController::class, 'changePassword']);
+    Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+    Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+});
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+// Owner routes
+Route::prefix('owner')->middleware('owner')->group(function () {
+    // endpoints coming in later phases
+});
+
+// Manager routes
+Route::prefix('manager')->middleware('manager')->group(function () {
+    // endpoints coming in later phases
+});
+
+// Worker routes
+Route::prefix('worker')->middleware('worker')->group(function () {
+    // endpoints coming in later phases
+});
+
+// Shared routes - all authenticated roles
+Route::prefix('shared')->group(function () {
+    // endpoints coming in later phases
 });
