@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\OwnerController;
 
 // Authentication routes - accessible to all, no middleware
 Route::prefix('auth')->group(function () {
@@ -15,6 +16,13 @@ Route::prefix('auth')->group(function () {
 // Owner routes
 Route::prefix('owner')->middleware('owner')->group(function () {
     // endpoints coming in later phases
+    Route::post('/users', [OwnerController::class, 'createUser']);
+    Route::get('/users', [OwnerController::class, 'getAllUsers']);
+    Route::get('/users/{id}', [OwnerController::class, 'getUser']);
+    Route::patch('/users/{id}/deactivate', [OwnerController::class, 'deactivateUser']);
+    Route::patch('/users/{id}/reactivate', [OwnerController::class, 'reactivateUser']);
+    Route::patch('/users/{id}/reset-password', [OwnerController::class, 'resetUserPassword']);
+
 });
 
 // Manager routes
