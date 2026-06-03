@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\OwnerController;
 use App\Http\Controllers\ManagerController;
+use App\Http\Controllers\WorkerController;
 
 // Authentication routes - accessible to all, no middleware
 Route::prefix('auth')->group(function () {
@@ -61,7 +62,12 @@ Route::prefix('manager')->middleware('manager')->group(function () {
 // Worker routes
 Route::prefix('worker')->middleware('worker')->group(function () {
     // endpoints coming in later phases
+    Route::get('/orders', [WorkerController::class, 'getMyOrders']);
+    Route::get('/orders/{id}', [WorkerController::class, 'getMyOrder']);
+    Route::patch('/orders/{id}/deliver', [WorkerController::class, 'markDelivered']);
+    Route::patch('/orders/{id}/flag', [WorkerController::class, 'flagOrder']);
 });
+
 
 // Shared routes - all authenticated roles
 Route::prefix('shared')->group(function () {
