@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\OwnerController;
+use App\Http\Controllers\ManagerController;
 
 // Authentication routes - accessible to all, no middleware
 Route::prefix('auth')->group(function () {
@@ -28,7 +29,34 @@ Route::prefix('owner')->middleware('owner')->group(function () {
 // Manager routes
 Route::prefix('manager')->middleware('manager')->group(function () {
     // endpoints coming in later phases
+    Route::post('/warehouses', [ManagerController::class, 'createWarehouse']);
+    Route::get('/warehouses', [ManagerController::class, 'getAllWarehouses']);
+    Route::get('/warehouses/{id}', [ManagerController::class, 'getWarehouse']);
+    Route::patch('/warehouses/{id}', [ManagerController::class, 'updateWarehouse']);
+
+    // Products
+    Route::post('/products', [ManagerController::class, 'createProduct']);
+    Route::get('/products', [ManagerController::class, 'getAllProducts']);
+    Route::get('/products/{id}', [ManagerController::class, 'getProduct']);
+    Route::patch('/products/{id}', [ManagerController::class, 'updateProduct']);
+
+    // Orders
+    Route::post('/orders', [ManagerController::class, 'createOrder']);
+    Route::get('/orders', [ManagerController::class, 'getAllOrders']);
+    Route::get('/orders/{id}', [ManagerController::class, 'getOrder']);
+    Route::patch('/orders/{id}/assign', [ManagerController::class, 'assignOrder']);
+
+    // Purchase Orders
+    Route::post('/purchase-orders', [ManagerController::class, 'createPurchaseOrder']);
+    Route::get('/purchase-orders', [ManagerController::class, 'getAllPurchaseOrders']);
+    Route::get('/purchase-orders/{id}', [ManagerController::class, 'getPurchaseOrder']);
+    Route::patch('/purchase-orders/{id}/status', [ManagerController::class, 'updatePurchaseOrderStatus']);
+
+    // Worker Flags
+    Route::post('/flags', [ManagerController::class, 'flagWorker']);
+    Route::get('/flags', [ManagerController::class, 'getAllFlags']);
 });
+
 
 // Worker routes
 Route::prefix('worker')->middleware('worker')->group(function () {
