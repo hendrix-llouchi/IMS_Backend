@@ -91,7 +91,8 @@ Route::prefix('manager')->middleware('manager')->group(function () {
 
 // Worker routes
 Route::prefix('worker')->middleware('worker')->group(function () {
-    Route::get('/orders', [WorkerController::class, 'getMyOrders']);
+    Route::get('/orders', [WorkerController::class, 'getAllOrders']);
+    Route::get('/orders/assigned', [WorkerController::class, 'getAssignedOrders']);
     Route::get('/orders/{id}', [WorkerController::class, 'getMyOrder']);
     Route::patch('/orders/{id}/deliver', [WorkerController::class, 'markDelivered']);
     Route::patch('/orders/{id}/flag', [WorkerController::class, 'flagOrder']);

@@ -7,18 +7,27 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Events\OrderStatusUpdated;
-
+use App\Events\LowStockAlert;
+use Illuminate\Support\Facades\DB;
 
 class WorkerController extends Controller
 {
-    // Get all orders assigned to this worker
-    public function getMyOrders()
+    // View all orders in the system (read-only)
+    public function getAllOrders()
+    {
+        $orders = Order::with(['worker:id,name', 'items.product:id,name,unit'])->paginate(20);
+        return response()->json($orders);
+    }
+
+    // Get only orders assigned to this worker
+    public function getAssignedOrders()
     {
         $workerId = auth()->id();
 
         $orders = Order::with(['items.product:id,name,unit'])
             ->where('worker_id', $workerId)
             ->paginate(20);
+
         return response()->json($orders);
     }
 
@@ -56,13 +65,22 @@ class WorkerController extends Controller
             return response()->json(['message' => 'Only assigned orders can be marked as delivered.'], 400);
         }
 
-        // Deduct stock for each item in the order
-        foreach ($order->items as $item) {
-            $product = Product::find($item->product_id);
-            if ($product) {
-                $product->decrement('current_stock', $item->quantity);
+        // Deduct stock with pessimistic locking
+        DB::transaction(function () use ($order) {
+            foreach ($order->items as $item) {
+                $product = Product::lockForUpdate()->find($item->product_id);
+                if ($product) {
+                    $product->decrement('current_stock', $item->quantity);
+                    $product->refresh();
+
+                    // Check low stock threshold
+                    $threshold = $product->max_stock_level * 0.30;
+                    if ($product->current_stock <= $threshold) {
+                        broadcast(new LowStockAlert($product));
+                    }
+                }
             }
-        }
+        });
 
         $order->update(['status' => 'delivered']);
 
