@@ -11,6 +11,9 @@ use App\Models\OrderItem;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderItem;
 use App\Models\WorkerFlag;
+use App\Events\OrderAssigned;
+use App\Events\LowStockAlert;
+use App\Events\OrderStatusUpdated;
 
 class ManagerController extends Controller
 {
@@ -214,6 +217,8 @@ class ManagerController extends Controller
             'status' => 'assigned',
         ]);
 
+        broadcast(new OrderAssigned($order))->toOthers();
+
         return response()->json([
             'message' => 'Order assigned successfully.',
             'order' => $order,
@@ -300,10 +305,15 @@ class ManagerController extends Controller
                 if ($poItem) {
                     $poItem->update(['quantity_received' => $item['quantity_received']]);
 
-                    // Update product stock
                     $product = Product::find($poItem->product_id);
                     if ($product) {
                         $product->increment('current_stock', $item['quantity_received']);
+                        $product->refresh();
+
+                        $threshold = $product->max_stock_level * 0.30;
+                        if ($product->current_stock <= $threshold) {
+                            broadcast(new LowStockAlert($product));
+                        }
                     }
                 }
             }

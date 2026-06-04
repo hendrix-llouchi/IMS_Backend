@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Events\OrderStatusUpdated;
+
 
 class WorkerController extends Controller
 {
@@ -65,6 +67,9 @@ class WorkerController extends Controller
 
         $order->update(['status' => 'delivered']);
 
+        // Fire real-time notification to the manager
+        broadcast(new OrderStatusUpdated($order))->toOthers();
+
         return response()->json([
             'message' => 'Order marked as delivered successfully.',
             'order' => $order,
@@ -96,6 +101,9 @@ class WorkerController extends Controller
             'status' => 'flagged',
             'flag_reason' => $request->flag_reason,
         ]);
+
+        // Fire real-time notification to the manager
+        broadcast(new OrderStatusUpdated($order))->toOthers();
 
         return response()->json([
             'message' => 'Order flagged successfully.',
