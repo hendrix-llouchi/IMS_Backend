@@ -18,9 +18,8 @@ class WorkerController extends Controller
 
         $orders = Order::with(['items.product:id,name,unit'])
             ->where('worker_id', $workerId)
-            ->get();
-
-        return response()->json(['orders' => $orders]);
+            ->paginate(20);
+        return response()->json($orders);
     }
 
     // Get a single order assigned to this worker
@@ -109,5 +108,12 @@ class WorkerController extends Controller
             'message' => 'Order flagged successfully.',
             'order' => $order,
         ]);
+    }
+
+    // View all stock levels (read-only)
+    public function getAllStock()
+    {
+        $stock = Product::with('warehouse:id,name')->paginate(20);
+        return response()->json($stock);
     }
 }

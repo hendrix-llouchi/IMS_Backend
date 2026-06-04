@@ -5,8 +5,9 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\OwnerController;
 use App\Http\Controllers\ManagerController;
 use App\Http\Controllers\WorkerController;
+use App\Http\Controllers\SharedController;
 
-// Authentication routes - accessible to all, no middleware
+// Authentication routes
 Route::prefix('auth')->group(function () {
     Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:3,15');
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -17,19 +18,42 @@ Route::prefix('auth')->group(function () {
 
 // Owner routes
 Route::prefix('owner')->middleware('owner')->group(function () {
-    // endpoints coming in later phases
-    Route::post('/users', [OwnerController::class, 'createUser']);
+    // Account Management
+    Route::post('/users/create', [OwnerController::class, 'createUser']);
     Route::get('/users', [OwnerController::class, 'getAllUsers']);
     Route::get('/users/{id}', [OwnerController::class, 'getUser']);
-    Route::patch('/users/{id}/deactivate', [OwnerController::class, 'deactivateUser']);
-    Route::patch('/users/{id}/reactivate', [OwnerController::class, 'reactivateUser']);
+    Route::put('/users/{id}', [OwnerController::class, 'updateUser']);
+    Route::put('/users/{id}/deactivate', [OwnerController::class, 'deactivateUser']);
+    Route::put('/users/{id}/reactivate', [OwnerController::class, 'reactivateUser']);
     Route::patch('/users/{id}/reset-password', [OwnerController::class, 'resetUserPassword']);
+    Route::delete('/users/{id}', [OwnerController::class, 'deleteUser']);
 
+    // Worker Flags
+    Route::get('/flags', [OwnerController::class, 'getAllFlags']);
+    Route::put('/flags/{id}/dismiss', [OwnerController::class, 'dismissFlag']);
+    Route::put('/flags/{id}/warn', [OwnerController::class, 'warnWorker']);
+
+    // Stock and Order Oversight
+    Route::get('/stock', [OwnerController::class, 'getAllStock']);
+    Route::get('/orders', [OwnerController::class, 'getAllOrders']);
+
+    // Reports
+    Route::get('/reports/financial', [OwnerController::class, 'financialReport']);
+    Route::get('/reports/audit', [OwnerController::class, 'auditReport']);
+
+    // Settings
+    Route::get('/settings', [OwnerController::class, 'getSettings']);
+    Route::put('/settings', [OwnerController::class, 'updateSettings']);
 });
 
 // Manager routes
 Route::prefix('manager')->middleware('manager')->group(function () {
-    // endpoints coming in later phases
+    // User Management
+    Route::post('/users/create', [ManagerController::class, 'createWorker']);
+    Route::get('/users', [ManagerController::class, 'getAllWorkers']);
+    Route::get('/workers/status', [ManagerController::class, 'getWorkersStatus']);
+
+    // Warehouses
     Route::post('/warehouses', [ManagerController::class, 'createWarehouse']);
     Route::get('/warehouses', [ManagerController::class, 'getAllWarehouses']);
     Route::get('/warehouses/{id}', [ManagerController::class, 'getWarehouse']);
@@ -41,11 +65,18 @@ Route::prefix('manager')->middleware('manager')->group(function () {
     Route::get('/products/{id}', [ManagerController::class, 'getProduct']);
     Route::patch('/products/{id}', [ManagerController::class, 'updateProduct']);
 
+    // Stock
+    Route::get('/stock', [ManagerController::class, 'getAllStock']);
+    Route::patch('/stock/{id}', [ManagerController::class, 'updateStock']);
+    Route::get('/stock/low', [ManagerController::class, 'getLowStock']);
+
     // Orders
     Route::post('/orders', [ManagerController::class, 'createOrder']);
     Route::get('/orders', [ManagerController::class, 'getAllOrders']);
     Route::get('/orders/{id}', [ManagerController::class, 'getOrder']);
     Route::patch('/orders/{id}/assign', [ManagerController::class, 'assignOrder']);
+    Route::patch('/orders/{id}/flag', [ManagerController::class, 'flagOrder']);
+    Route::patch('/orders/{id}/resolve', [ManagerController::class, 'resolveOrder']);
 
     // Purchase Orders
     Route::post('/purchase-orders', [ManagerController::class, 'createPurchaseOrder']);
@@ -58,18 +89,19 @@ Route::prefix('manager')->middleware('manager')->group(function () {
     Route::get('/flags', [ManagerController::class, 'getAllFlags']);
 });
 
-
 // Worker routes
 Route::prefix('worker')->middleware('worker')->group(function () {
-    // endpoints coming in later phases
     Route::get('/orders', [WorkerController::class, 'getMyOrders']);
     Route::get('/orders/{id}', [WorkerController::class, 'getMyOrder']);
     Route::patch('/orders/{id}/deliver', [WorkerController::class, 'markDelivered']);
     Route::patch('/orders/{id}/flag', [WorkerController::class, 'flagOrder']);
+    Route::get('/stock', [WorkerController::class, 'getAllStock']);
 });
-
 
 // Shared routes - all authenticated roles
 Route::prefix('shared')->group(function () {
-    // endpoints coming in later phases
+    Route::get('/warehouses', [SharedController::class, 'getAllWarehouses']);
+    Route::get('/warehouses/{id}', [SharedController::class, 'getWarehouse']);
+    Route::get('/products', [SharedController::class, 'getAllProducts']);
+    Route::get('/products/{id}', [SharedController::class, 'getProduct']);
 });
