@@ -15,6 +15,7 @@ use App\Models\WorkerFlag;
 use App\Events\OrderAssigned;
 use App\Events\LowStockAlert;
 use App\Events\OrderStatusUpdated;
+use App\Events\ShortDeliveryAlert;
 
 class ManagerController extends Controller
 {
@@ -456,6 +457,10 @@ class ManagerController extends Controller
             'status' => $request->status,
             'actual_arrival_date' => $request->actual_arrival_date,
         ]);
+
+        if ($request->status === 'incomplete') {
+            broadcast(new ShortDeliveryAlert($purchaseOrder));
+        }
 
         if ($request->has('items')) {
             DB::transaction(function () use ($request) {
