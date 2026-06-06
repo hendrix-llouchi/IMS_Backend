@@ -22,7 +22,10 @@ class ShortDeliveryAlert implements ShouldBroadcastNow
 
     public function broadcastOn()
     {
-        return new Channel('management.alerts');
+        return [
+            new Channel('management.alerts'),
+            new Channel('worker.alerts'),
+        ];
     }
 
     public function broadcastAs()
