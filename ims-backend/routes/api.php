@@ -100,7 +100,7 @@ Route::prefix('worker')->middleware('worker')->group(function () {
 });
 
 // Shared routes - all authenticated roles
-Route::prefix('shared')->group(function () {
+Route::prefix('shared')->middleware('auth:api')->group(function () {
     Route::get('/warehouses', [SharedController::class, 'getAllWarehouses']);
     Route::get('/warehouses/{id}', [SharedController::class, 'getWarehouse']);
     Route::get('/products', [SharedController::class, 'getAllProducts']);
