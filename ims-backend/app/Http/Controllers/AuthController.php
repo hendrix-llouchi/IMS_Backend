@@ -74,6 +74,7 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'Login successful.',
             'role' => $user->role,
+            'username' => $user->username,
             'is_temporary_password' => $user->is_temporary_password,
         ])->withCookie($cookie);
     }
