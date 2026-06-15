@@ -35,24 +35,28 @@ class AuthController extends Controller
         }
 
         // Check if account is locked
-        if ($user->locked_until && Carbon::now()->lessThan($user->locked_until)) {
-            return response()->json([
-                'message' => 'Account temporarily locked. Try again in 15 minutes.'
-            ], 423);
-        }
+        // $lockedUntil = $user->locked_until ? Carbon::parse($user->locked_until) : null;
+        // if ($lockedUntil && Carbon::now()->lessThan($lockedUntil)) {
+        //     return response()->json([
+        //         'message' => 'Account temporarily locked.',
+        //         'locked_until' => $lockedUntil->toIso8601String()
+        //     ], 423);
+        // }
 
         // Check password
         if (!Hash::check($request->password, $user->password)) {
-            $user->increment('failed_attempts');
+            // $user->increment('failed_attempts');
 
-            if ($user->failed_attempts >= 3) {
-                $user->update([
-                    'locked_until' => Carbon::now()->addMinutes(15)
-                ]);
-                return response()->json([
-                    'message' => 'Account temporarily locked. Try again in 15 minutes.'
-                ], 423);
-            }
+            // if ($user->failed_attempts >= 3) {
+            //     $lockedUntil = Carbon::now()->addMinutes(15);
+            //     $user->update([
+            //         'locked_until' => $lockedUntil
+            //     ]);
+            //     return response()->json([
+            //         'message' => 'Account temporarily locked.',
+            //         'locked_until' => $lockedUntil->toIso8601String()
+            //     ], 423);
+            // }
 
             return response()->json([
                 'message' => 'Invalid credentials.'
@@ -73,8 +77,14 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'Login successful.',
-            'role' => $user->role,
+            'id' => $user->id,
+            'name' => $user->name,
             'username' => $user->username,
+            'email' => $user->email,
+            'role' => $user->role,
+            'phone_number' => $user->phone_number,
+            'location' => $user->location,
+            'emergency_contact' => $user->emergency_contact,
             'is_temporary_password' => $user->is_temporary_password,
         ])->withCookie($cookie);
     }
