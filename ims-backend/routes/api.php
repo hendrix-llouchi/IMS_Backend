@@ -9,7 +9,7 @@ use App\Http\Controllers\SharedController;
 
 // Authentication routes
 Route::prefix('auth')->group(function () {
-    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:3,15');
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:100,1');
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/change-password', [AuthController::class, 'changePassword']);
     Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);

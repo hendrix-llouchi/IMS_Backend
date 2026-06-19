@@ -200,7 +200,7 @@ class AuthTest extends TestCase
         $response = $this->withCookie(self::TOKEN_COOKIE, $token)
             ->postJson('/api/auth/change-password', [
                 'username'     => self::OWNER_USERNAME,
-                'new_password' => 'newSecurePass123',
+                'new_password' => 'newSecurePass@123',
             ]);
 
         $response->assertStatus(200);
@@ -217,7 +217,7 @@ class AuthTest extends TestCase
         // Send request without the required "username" field
         $response = $this->withCookie(self::TOKEN_COOKIE, $token)
             ->postJson('/api/auth/change-password', [
-                'new_password' => 'newSecurePass123',
+                'new_password' => 'newSecurePass@123',
                 // "username" intentionally omitted
             ]);
 

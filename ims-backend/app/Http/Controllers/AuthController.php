@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Hash;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Validation\Rules\Password;
 
 class AuthController extends Controller
 {
@@ -92,7 +93,15 @@ class AuthController extends Controller
     {
         $request->validate([
             'username' => 'required|string',
-            'new_password' => 'required|string|min:6',
+            'new_password' => [
+                'required',
+                'string',
+                Password::min(8)
+                    ->letters()
+                    ->mixedCase()
+                    ->numbers()
+                    ->symbols(),
+            ],
         ]);
 
         $user = User::where('username', $request->username)->first();
@@ -146,7 +155,15 @@ class AuthController extends Controller
     {
         $request->validate([
             'token' => 'required|string',
-            'new_password' => 'required|string|min:6',
+            'new_password' => [
+                'required',
+                'string',
+                Password::min(8)
+                    ->letters()
+                    ->mixedCase()
+                    ->numbers()
+                    ->symbols(),
+            ],
         ]);
 
         $user = User::where('reset_token', $request->token)->first();
