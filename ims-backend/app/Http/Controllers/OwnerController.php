@@ -51,7 +51,7 @@ class OwnerController extends Controller
     public function getAllUsers()
     {
         $users = User::where('role', '!=', 'owner')
-            ->select('id', 'name', 'age', 'phone_number', 'location', 'email', 'username', 'role', 'is_active')
+            ->select('id', 'name', 'age', 'phone_number', 'location', 'emergency_contact', 'email', 'username', 'role', 'is_active', 'created_at')
             ->paginate(20);
 
         return response()->json($users);
@@ -61,7 +61,7 @@ class OwnerController extends Controller
     {
         $user = User::where('id', $id)
             ->where('role', '!=', 'owner')
-            ->select('id', 'name', 'age', 'phone_number', 'location', 'emergency_contact', 'email', 'username', 'role', 'is_active')
+            ->select('id', 'name', 'age', 'phone_number', 'location', 'emergency_contact', 'email', 'username', 'role', 'is_active', 'created_at')
             ->first();
 
         if (!$user) {
