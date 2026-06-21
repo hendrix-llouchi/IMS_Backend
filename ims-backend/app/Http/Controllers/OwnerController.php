@@ -235,15 +235,39 @@ class OwnerController extends Controller
 
     // ==================== STOCK AND ORDER OVERSIGHT ====================
 
-    public function getAllStock()
+    public function getAllStock(Request $request)
     {
-        $stock = Product::with('warehouse:id,name')->paginate(20);
+        $query = Product::with('warehouse:id,name');
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('type', 'like', '%' . $search . '%');
+            });
+        }
+
+        if ($request->filled('warehouse_id') && $request->warehouse_id !== 'all') {
+            $query->where('warehouse_id', $request->warehouse_id);
+        }
+
+        $stock = $query->paginate(20);
         return response()->json($stock);
     }
 
-    public function getAllOrders()
+    public function getAllOrders(Request $request)
     {
-        $orders = Order::with(['worker:id,name', 'manager:id,name', 'items.product:id,name'])->paginate(20);
+        $query = Order::with(['worker:id,name', 'manager:id,name', 'items.product:id,name']);
+
+        if ($request->has('status') && $request->status !== '' && $request->status !== 'all') {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->has('search') && $request->search !== '') {
+            $query->where('recipient_name', 'like', '%' . $request->search . '%');
+        }
+
+        $orders = $query->paginate(20);
         return response()->json($orders);
     }
 
