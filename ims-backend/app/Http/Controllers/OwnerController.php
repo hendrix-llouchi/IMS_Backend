@@ -208,8 +208,12 @@ class OwnerController extends Controller
         return response()->json(['message' => 'Flag dismissed successfully.']);
     }
 
-    public function warnWorker($id)
+    public function warnWorker(Request $request, $id)
     {
+        $request->validate([
+            'notes' => 'required|string',
+        ]);
+
         $flag = WorkerFlag::find($id);
 
         if (!$flag) {
@@ -222,6 +226,7 @@ class OwnerController extends Controller
 
         $flag->update([
             'status' => 'warning_issued',
+            'warning_notes' => $request->notes,
             'reviewed_at' => now(),
         ]);
 

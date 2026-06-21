@@ -12,6 +12,7 @@ class WorkerFlag extends Model
         'reason',
         'status',
         'reviewed_at',
+        'warning_notes',
     ];
 
     public function manager()
