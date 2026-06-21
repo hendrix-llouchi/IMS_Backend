@@ -516,12 +516,15 @@ class OwnerTest extends TestCase
         ]);
 
         $response = $this->withHeader('Authorization', "Bearer {$token}")
-            ->putJson("/api/owner/flags/{$flag->id}/warn");
+            ->putJson("/api/owner/flags/{$flag->id}/warn", [
+                'notes' => 'Test warning notes reason'
+            ]);
 
         $response->assertStatus(200);
 
         $flag->refresh();
         $this->assertEquals('warning_issued', $flag->status);
+        $this->assertEquals('Test warning notes reason', $flag->warning_notes);
         $this->assertNotNull($flag->reviewed_at, 'reviewed_at must be set after warning.');
     }
 
